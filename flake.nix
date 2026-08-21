@@ -1,5 +1,5 @@
 {
-  description = "Cortex Red's Nix packages and overlays";
+  description = "Known Rabbit's Nix packages";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -7,11 +7,7 @@
     { nixpkgs, ... }:
     let
       inherit (nixpkgs) lib;
-      systems = [
-        "aarch64-linux"
-        "x86_64-linux"
-      ];
-      forAllSystems = lib.genAttrs systems;
+      forAllSystems = lib.genAttrs lib.systems.flakeExposed;
       overlays = import ./overlays;
       packageSet = import ./lib/package-set.nix { inherit lib; };
       flattenPackages = import ./lib/flatten-packages.nix { inherit lib; };
