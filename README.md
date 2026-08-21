@@ -55,7 +55,24 @@ stdenv.mkDerivation {
 
 The helpers are intentionally not exposed through `packages.<system>` or `legacyPackages`; consume them through the overlay so they use the consumer's Nixpkgs instance.
 
-Package-specific NixOS modules are available as `nixosModules.astral`, `nixosModules.easytier-gui`, and `nixosModules.fido-linux-id`.
+Package-specific NixOS modules are available as `nixosModules.astral`, `nixosModules.easytier-gui`, and `nixosModules.fido-linux-id`. Import only the modules a host uses:
+
+```nix
+{
+  imports = [
+    inputs.known-rabbit-packages.nixosModules.astral
+    inputs.known-rabbit-packages.nixosModules.fido-linux-id
+  ];
+}
+```
+
+`nixosModules.all` imports the complete published module set as an opt-in convenience:
+
+```nix
+imports = [ inputs.known-rabbit-packages.nixosModules.all ];
+```
+
+Explicit named imports are recommended for host configurations because adding a module to this repository will not silently expand their module set.
 
 ## Package documentation
 
