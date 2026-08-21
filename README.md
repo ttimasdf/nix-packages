@@ -36,7 +36,24 @@ Packages can also be built directly:
 nix build github:ttimasdf/nix-packages#yakit
 ```
 
-The default overlay only adds packages. Existing-package overrides such as `kscreen`, `ghidra`, and `qt68` are exported separately under `overlays`.
+The default overlay adds packages and the `makeDesktopItemExtended` and `makeSanitizedLauncherHook` build-support helpers. Existing-package overrides such as `kscreen`, `ghidra`, and `qt68` are exported separately under `overlays`.
+
+After applying the overlay, external package definitions can request either helper through `callPackage` just like native Nixpkgs build-support utilities:
+
+```nix
+{
+  makeDesktopItemExtended,
+  makeSanitizedLauncherHook,
+  stdenv,
+}:
+
+stdenv.mkDerivation {
+  nativeBuildInputs = [ makeSanitizedLauncherHook ];
+  desktopItems = [ (makeDesktopItemExtended { /* ... */ }) ];
+}
+```
+
+The helpers are intentionally not exposed through `packages.<system>` or `legacyPackages`; consume them through the overlay so they use the consumer's Nixpkgs instance.
 
 Package-specific NixOS modules are available as `nixosModules.astral`, `nixosModules.easytier-gui`, and `nixosModules.fido-linux-id`.
 

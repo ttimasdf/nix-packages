@@ -8,6 +8,6 @@ final: prev: {
 }
 ```
 
-`default.nix` exports the overlay index. `packages.nix` and `default` add the custom package set; all existing-package overrides remain opt-in.
+`default.nix` exports the overlay index. `packages.nix` and `default` add the native package set and explicitly wired build-support helpers; all existing-package overrides remain opt-in.
 
 Use `../lib/find-patches.nix` or `../../lib/find-patches.nix` for local patch directories. Avoid dependencies on a consuming flake or configuration repository.

@@ -1,7 +1,9 @@
-{ lib }:
+{
+  lib,
+  callPackage,
+}:
 
-final:
-let
-  packagePaths = import ./discover.nix { inherit lib; } ../packages;
-in
-lib.mapAttrs (_name: path: final.callPackage path { }) packagePaths
+lib.packagesFromDirectoryRecursive {
+  inherit callPackage;
+  directory = ../packages;
+}

@@ -1,8 +1,10 @@
 # Package guidance
 
-Every `.nix` file or directory with `default.nix` directly under this directory is discovered as a package-set attribute.
+Every `.nix` file and directory with `package.nix` under this directory is discovered by `lib.packagesFromDirectoryRecursive`.
 
+- Package leaves must evaluate to derivations suitable for flake and NUR package outputs.
 - Use normal `callPackage` arguments and include complete `meta` attributes.
-- Use a directory when a package needs patches, scripts, icons, or update helpers.
-- Package helpers may return functions for use through `pkgs`, but only derivations are exported from flake and NUR package outputs.
+- Use a directory with `package.nix` when a package needs patches, scripts, icons, or update helpers.
+- Package-set-dependent functions and setup hooks belong under `build-support/`, not here.
+- Sibling packages and build-support helpers are resolved through the package overlay's fixed point.
 - Do not add packages whose sources require private credentials.

@@ -9,8 +9,7 @@
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
       overlays = import ./overlays;
-      packageSet = import ./lib/package-set.nix { inherit lib; };
-      flattenPackages = import ./lib/flatten-packages.nix { inherit lib; };
+      packageSet = import ./lib/package-set.nix;
     in
     {
       inherit overlays;
@@ -24,7 +23,9 @@
             config.allowUnfree = true;
           };
         in
-        flattenPackages (packageSet pkgs)
+        packageSet {
+          inherit (pkgs) lib callPackage;
+        }
       );
 
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);

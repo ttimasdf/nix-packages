@@ -129,7 +129,7 @@ This is much faster for iteration:
 
 ## How the package works
 
-`default.nix`:
+`package.nix`:
 
 1. Uses `kernel.src` as the source of the in-tree `drivers/hwmon/spd5118.c`.
 2. Copies that one driver file into a tiny temporary module build tree.
