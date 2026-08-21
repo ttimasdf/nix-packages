@@ -6,20 +6,26 @@
   buildFHSEnv,
   appimageTools,
   writeShellScript,
+  version ? "7.11.0-wuying",
+  hash ? "sha256-NdqvQVi9jq4YQFRQQQDU6s6rfVNrl9gYS2yJhnUzcxE=",
+  wuyingSource ? null,
 }:
 
 let
-  pname = "unicom-cloud-desktop";
-  version = "7.11.0-wuying";
+  pname = "wuying-cloud-desktop";
 
-  src = requireFile {
-    name = "unicom-cloud-desktop-${version}.deb";
-    hash = "sha256-NdqvQVi9jq4YQFRQQQDU6s6rfVNrl9gYS2yJhnUzcxE=";
-    message = ''
-      Please download the Unicom Cloud Desktop (Wuying) installer and place it in the store:
-      $ nix-prefetch-url file:///path/to/unicom-cloud-desktop-${version}.deb
-    '';
-  };
+  src =
+    if wuyingSource != null then
+      wuyingSource
+    else
+      requireFile {
+        name = "wuying-cloud-desktop-${version}.deb";
+        inherit hash;
+        message = ''
+          Please download the Wuying Cloud Desktop installer and place it in the store:
+          $ nix-prefetch-url file:///path/to/wuying-cloud-desktop-${version}.deb
+        '';
+      };
 
   unpacked = stdenv.mkDerivation {
     inherit pname version src;

@@ -48,8 +48,11 @@ let
     name = with lib.versions; "ida-pro_${major version}${minor version}_x64linux.run";
     hash = "sha256-qt0PiulyuE+U8ql0g0q/FhnzvZM7O02CdfnFAAjQWuE=";
     message = ''
-      Please download the IDA Pro installer and place it in the store:
-      $ nix-prefetch-url file:///path/to/idapro-${version}.run
+      Please download the IDA Pro installer and place it in the Nix store:
+
+        nix-prefetch-url file:///path/to/ida-pro_${lib.versions.major version}${lib.versions.minor version}_x64linux.run
+
+      Then build pkgs.ida-pro again.
     '';
   };
 

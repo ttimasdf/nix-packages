@@ -15,7 +15,7 @@ let
         config.allowUnfree = true;
         config.permittedInsecurePackages = [
           final.lib.warn
-          "Enabling insecure package qtwebengine-5.15.19 due to unicom-cloud-desktop dependency"
+          "Enabling insecure package qtwebengine-5.15.19 due to wuying-cloud-desktop dependency"
           "qtwebengine-5.15.19"
         ];
       };

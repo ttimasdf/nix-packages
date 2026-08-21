@@ -1,4 +1,4 @@
-# The current libtiff version is incompatible with unicom-cloud-desktop,
+# The current libtiff version is incompatible with wuying-cloud-desktop,
 # which requires libtiff v4.4.0 (ABI 5).
 _final: prev:
 let

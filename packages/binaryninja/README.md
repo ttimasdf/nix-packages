@@ -1,115 +1,72 @@
-# Binary Ninja Nix Package
+# Binary Ninja
 
-This package provides derivations for Binary Ninja, an interactive decompiler,
-disassembler, debugger, and binary analysis platform.
+This package exposes one commercial Binary Ninja package as `pkgs.binaryninja`.
+It is a user-supplied proprietary archive, so the archive must be added to the
+Nix store before evaluation/build.
 
-It dynamically generates packages for different editions (e.g., commercial, personal)
-and versions (stable, dev) based on the data in `./releases.json`.
+## Add the vendor archive
 
-## Usage
+Download a Linux commercial archive from Binary Ninja. Stable archives use a
+`-stable` suffix in the filename; development archives use a `-dev` suffix and
+no `-stable` suffix.
 
-To use Binary Ninja in your NixOS configuration:
+For the current stable package:
 
-1. **Add Binary Ninja files** to the Nix store and populate `releases.json` (see [Adding Binary Ninja Files](#adding-binary-ninja-files) section below)
-2. **Add the package** to your `configuration.nix`:
-   ```nix
-   environment.systemPackages = with pkgs; [
-     binaryninja.binaryninja-commercial  # or binaryninja-personal, etc.
-   ];
-   ```
-
-Once configured, you can select a specific edition and version:
-  - `pkgs.binaryninja.binaryninja-commercial` for the latest stable commercial version.
-  - `pkgs.binaryninja.binaryninja-personal-beta` for the latest development personal version.
-
-You can also access all available versions for a given edition via the `allVersions`
-passthru attribute. For example:
-  - `pkgs.binaryninja.binaryninja-commercial-beta.allVersions."5.2.8089-dev"`
-  - `pkgs.binaryninja.binaryninja-commercial.allVersions."5.1.8005"`
-
-## Adding Binary Ninja Files
-
-To use this package, you need to add Binary Ninja files to the Nix store and populate the `releases.json` file with their SHA256 hashes.
-
-### Manual Method
-1. Download Binary Ninja files. e.g.
-   - `binaryninja_linux_commercial.5.1.8005-stable.7z`
-   - `binaryninja_linux_commercial.5.2.8089-dev.7z`
-2. Add each file to the Nix store and get its hash:
-   ```bash
-   nix-prefetch-url file:///path/to/binaryninja_linux_commercial.5.1.8005-stable.7z
-   ```
-3. Add the hash to `releases.json` under the appropriate edition and version
-
-### Automated Method
-Use the provided `nix-store-add.sh` script to automatically process Binary Ninja files:
-```bash
-# Process all binaryninja_linux*.7z files in current and subdirectories
-./nix-store-add.sh
-
-# Process specific files
-./nix-store-add.sh binaryninja_linux_commercial.5.1.8005-stable.7z binaryninja_linux_commercial.5.2.8089-dev.7z
+```console
+nix-prefetch-url file:///path/to/binaryninja_linux_commercial.5.3.9757-stable.7z
 ```
 
-The script will:
-- Find Binary Ninja files (if none specified)
-- Add them to the Nix store
-- Generate SHA256 hashes
-- Output the hashes for you to add to `releases.json`
+The resulting store path is accepted by `requireFile` when the filename and
+hash match the package arguments.
 
-## `releases.json` Structure
+## Stable and development channels
 
-The `releases.json` file should contain a JSON object where keys are editions
-(e.g., "commercial", "personal") and values are objects mapping version strings
-to their corresponding SHA256 hashes.
+The default package is the stable channel:
 
-Example `releases.json` entry:
-```json
+```nix
+environment.systemPackages = [ pkgs.binaryninja ];
+```
+
+The package detects a `-dev` version suffix and changes its executable and
+Desktop Entry names. This permits stable and development channels to coexist:
+
+```nix
+{ pkgs, ... }:
+let
+  binaryninja-dev = pkgs.binaryninja.override {
+    version = "5.3.8664-dev";
+    hash = "sha256-UEG3bcNmFjqIzfds5/Wrspn+CCnbI5vy0DSJXT6UQUQ=";
+  };
+in
 {
-  "commercial": {
-    "3.5.4377-dev": "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-    "3.4.4200": "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-  },
-  "personal": {
-    "3.5.4377-dev": "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-    "3.4.4200": "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-  }
+  environment.systemPackages = [
+    pkgs.binaryninja       # binaryninja
+    binaryninja-dev        # binaryninja-dev
+  ];
 }
 ```
 
-## Development
+For the development override, add the corresponding archive to the store:
 
-To diagnose build error of this package, you can use the following two methods.
-
-### Build Shell
-
-open a shell to diagnose build phase.
-
-```bash
-nix-shell -E "let nixpkgs = import (builtins.getFlake \"$(realpath ../../..)\").inputs.nixpkgs {}; in (with nixpkgs; (callPackage ./package.nix {}).binaryninja-commercial-dev)"
+```console
+nix-prefetch-url file:///path/to/binaryninja_linux_commercial.5.3.8664-dev.7z
 ```
 
-in build shell, run each phase interactively.
+A stable package installs `binaryninja` and `bnpython3` with a `Binary Ninja`
+Desktop Entry. A development package installs `binaryninja-dev` and
+`bnpython3-dev` with a `Binary Ninja (Dev Channel)` Desktop Entry.
 
-```bash
-mkdir -p unpack build && pushd unpack
-runPhase unpackPhase
-export out=$(realpath ../build)
-# runPhase patchPhase
-# runPhase configurePhase
-# runPhase buildPhase
-# runPhase checkPhase
-runPhase installPhase
-runPhase fixupPhase
-runPhase installCheckPhase
-runPhase distPhase
+`binaryNinjaSource` can also be supplied in an override when the archive is
+already represented by a Nix path or another fetcher:
+
+```nix
+pkgs.binaryninja.override {
+  version = "5.3.8664-dev";
+  hash = "sha256-UEG3bcNmFjqIzfds5/Wrspn+CCnbI5vy0DSJXT6UQUQ=";
+  binaryNinjaSource = /path/to/binaryninja_linux_commercial.5.3.8664-dev.7z;
+}
 ```
 
-### Run Shell
-
-Open a shell to diagnose runtime issues like pip, link issue etc.
-
-```bash
-nix-shell .
-```
-
+The hash shown above is an example for the latest development archive known to
+this package at the time of writing; verify the hash for the exact archive you
+download.
