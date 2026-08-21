@@ -51,3 +51,12 @@ nix flake show
 nix build .#<package>
 nix fmt -- .
 ```
+
+Reusable Nix store helpers live under `scripts/`:
+
+```console
+./scripts/nix-store-add.sh archive.7z
+./scripts/nix-store-delete.sh
+```
+
+The add helper records imported store paths in `nix-paths.txt`; the delete helper reads that file.
