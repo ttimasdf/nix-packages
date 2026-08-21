@@ -8,20 +8,20 @@ Add the repository as an input and make its packages available through the defau
 
 ```nix
 {
-  inputs.rabbit-packages = {
+  inputs.known-rabbit-packages = {
     url = "github:ttimasdf/nix-packages";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { nixpkgs, rabbit-packages, ... }: {
+  outputs = { nixpkgs, known-rabbit-packages, ... }: {
     nixosConfigurations.example = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         {
           nixpkgs.overlays = [
-            rabbit-packages.overlays.default
+            known-rabbit-packages.overlays.default
             # Opt in to overrides separately:
-            # rabbit-packages.overlays.kscreen
+            # known-rabbit-packages.overlays.kscreen
           ];
         }
       ];
