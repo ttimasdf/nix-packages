@@ -70,3 +70,7 @@ pkgs.binaryninja.override {
 The hash shown above is an example for the latest development archive known to
 this package at the time of writing; verify the hash for the exact archive you
 download.
+
+## Use with the flake
+
+Apply `inputs.known-rabbit-packages.overlays.default` to the Nixpkgs instance used by your system, then install `pkgs.binaryninja` or a version override as shown above. Build directly with `nix build github:ttimasdf/nix-packages#binaryninja` after importing the archive.

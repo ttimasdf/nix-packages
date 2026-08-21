@@ -31,3 +31,12 @@ tracked by that flake or already exist in the Nix store.
 
 The package overlay composes the Qt 5 WebEngine and libtiff ABI 5 compatibility
 packages required by this application.
+
+## Use with the flake
+
+```nix
+nixpkgs.overlays = [ inputs.known-rabbit-packages.overlays.default ];
+environment.systemPackages = [ pkgs.wuying-cloud-desktop ];
+```
+
+The package supports `x86_64-linux`. Build it directly with `nix build github:ttimasdf/nix-packages#wuying-cloud-desktop` after the vendor archive has been imported.

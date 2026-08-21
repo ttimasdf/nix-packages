@@ -1,3 +1,11 @@
+# KDE Ark overlay
+
+This overlay contains local KDE Ark CLI/7z patches. The overlay is currently a development scaffold: its patch application is commented out in `default.nix`, so applying `overlays.ark` alone does not replace `pkgs.kdePackages.ark`. Uncomment the `kdePackages` override to enable the patches, then rebuild the affected package.
+
+```nix
+nixpkgs.overlays = [ inputs.known-rabbit-packages.overlays.ark ];
+```
+
 # How to Debug Ark
 
 ## Build with Debug Log

@@ -78,3 +78,5 @@ pkgs.stdenv.mkDerivation {
   '';
   # ...
 }
+
+The helper is exposed through `overlays.default` as `pkgs.makeSanitizedLauncherHook`. It is build support rather than an end-user package, so it is intentionally absent from `packages.<system>` and the NUR package set.

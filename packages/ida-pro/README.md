@@ -18,3 +18,14 @@ prefetch command completes, build `pkgs.ida-pro` normally.
 If you maintain a local package override for another licensed installer
 version, update the package's `version` and `requireFile` hash/name together.
 Do not publish the vendor installer or its license data in this repository.
+
+## Use with the flake
+
+Apply `inputs.known-rabbit-packages.overlays.default` to the Nixpkgs instance used by your NixOS configuration, then install `pkgs.ida-pro`:
+
+```nix
+nixpkgs.overlays = [ inputs.known-rabbit-packages.overlays.default ];
+environment.systemPackages = [ pkgs.ida-pro ];
+```
+
+Build directly with `nix build github:ttimasdf/nix-packages#ida-pro` after the installer has been imported.

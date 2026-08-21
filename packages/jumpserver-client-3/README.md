@@ -18,3 +18,12 @@ hash together in your own package collection.
 
 The newer `pkgs.jumpserver-client` package is fetched publicly and does not
 need this manual input.
+
+## Use with the flake
+
+```nix
+nixpkgs.overlays = [ inputs.known-rabbit-packages.overlays.default ];
+environment.systemPackages = [ pkgs.jumpserver-client-3 ];
+```
+
+Build directly with `nix build github:ttimasdf/nix-packages#jumpserver-client-3` after the installer has been imported.
