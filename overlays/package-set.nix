@@ -1,8 +1,6 @@
 final: prev:
 
 prev.lib.composeManyExtensions [
-  (import ./libtiff5.nix)
-  (import ./qt5webengine.nix)
   (helperFinal: _helperPrev: {
     makeDesktopItemExtended =
       helperFinal.callPackage ../build-support/make-desktop-item-extended/package.nix

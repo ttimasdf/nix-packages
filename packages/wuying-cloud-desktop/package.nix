@@ -13,6 +13,9 @@
 
 let
   pname = "wuying-cloud-desktop";
+  compatibility = import ./compatibility.nix {
+    system = stdenv.hostPlatform.system;
+  };
 
   src =
     if wuyingSource != null then
@@ -63,14 +66,14 @@ buildFHSEnv (
       pkgs:
       (appimageTools.defaultFhsEnvArgs.targetPkgs pkgs)
       ++ (with pkgs; [
-        qt5w.qtbase
-        qt5w.qtwebengine
+        compatibility.qt5w.qtbase
+        compatibility.qt5w.qtwebengine
         libusb1
         libevdev
         libinput
         libpulseaudio
         libopus
-        libtiff-abi5
+        compatibility.libtiff-abi5
         unpacked
       ]);
 
