@@ -1,5 +1,5 @@
 let
-  packageOverlay = import ./packages.nix;
+  packageOverlay = import ./package-set.nix;
 
   namedOverlays = {
     ark = import ./ark;

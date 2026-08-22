@@ -6,7 +6,7 @@ This repository publishes personal Nix packages, portable Nixpkgs overlays, and 
 
 - `packages/<name>/package.nix`: derivations discovered by `lib.packagesFromDirectoryRecursive`
 - `build-support/`: package-set-dependent builders and setup hooks
-- `overlays/packages.nix`: fixed-point overlay containing packages and build-support helpers
+- `overlays/package-set.nix`: fixed-point overlay containing packages and build-support helpers
 - `overlays/default.nix`: exported overlay index; `default` adds packages and build-support helpers, while `all` composes every distinct overlay
 - `modules/nixos/`: package-specific NixOS modules
 - `scripts/`: reusable Nix store and repository maintenance helpers
