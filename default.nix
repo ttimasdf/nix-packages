@@ -4,7 +4,7 @@
 
 let
   overlays = import ./overlays;
-  packagePkgs = pkgs.extend overlays.packages;
+  packagePkgs = pkgs.extend overlays.default;
   packages = import ./lib/package-set.nix {
     inherit (packagePkgs) lib callPackage;
   };
