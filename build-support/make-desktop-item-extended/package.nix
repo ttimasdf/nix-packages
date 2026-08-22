@@ -5,85 +5,9 @@
 }:
 
 /**
-  An extended utility builder to create a desktop entry file with localization support.
+  Creates a desktop entry with localization, extended actions, and vendor-specific fields.
 
-  Extends the standard makeDesktopItem with:
-  - Localized names, generic names, comments, and keywords
-  - Actions with extraConfig support for vendor extensions
-  - Full support for all freedesktop.org Desktop Entry Specification 1.5 features
-
-  # Examples
-
-  ```nix
-  makeDesktopItemExtended {
-    name = "spectacle";
-    exec = "spectacle";
-    icon = "spectacle";
-    desktopName = "Spectacle";
-
-    # Localized names
-    localizedNames = {
-      "zh_CN" = "Spectacle 截图工具";
-      "ja" = "スクリーンショット";
-    };
-
-    genericName = "Screenshot Capture Utility";
-    localizedGenericNames = {
-      "zh_CN" = "屏幕截图工具";
-      "ja" = "スクリーンショット撮影ユーティリティ";
-    };
-
-    # Actions with extra configuration
-    actions = {
-      FullScreenScreenShot = {
-        name = "Capture Entire Desktop";
-        localizedNames = {
-          "zh_CN" = "截取整个桌面";
-        };
-        exec = "spectacle -f";
-        extraConfig = {
-          "X-KDE-Shortcuts" = "Shift+Print";
-        };
-      };
-    };
-
-    # Vendor extensions
-    extraConfig = {
-      "X-KDE-Shortcuts" = "Print,Meta+Shift+S";
-      "X-DBUS-ServiceName" = "org.kde.Spectacle";
-    };
-  }
-  ```
-
-  # Type
-
-  ```
-  makeDesktopItemExtended :: AttrSet -> Derivation
-  ```
-
-  # Input
-
-  `attrs`
-
-  : An AttrSet with the following definitions. See https://specifications.freedesktop.org/desktop-entry-spec/1.5/ for definitions.
-
-    All parameters from makeDesktopItem are supported, plus:
-
-    - `localizedNames` (AttrSet): Mapping of locale -> localized Name value (e.g., { "zh_CN" = "中文名称"; })
-    - `localizedGenericNames` (AttrSet): Mapping of locale -> localized GenericName value
-    - `localizedComments` (AttrSet): Mapping of locale -> localized Comment value
-    - `localizedKeywords` (AttrSet): Mapping of locale -> list of localized Keywords
-    - `actions` (AttrSet): Actions with extended support for localizedNames and extraConfig
-      Each action can have:
-      - `name` (string): The action name
-      - `localizedNames` (AttrSet): Localized action names
-      - `icon` (string): The action icon
-      - `exec` (string): The action exec command
-      - `extraConfig` (AttrSet): Additional vendor-specific configuration for this action
-
-  # Output
-
-  A derivation that contains the output desktop entry file.
+  See `README.md` in this directory for usage and the extended API.
 */
 lib.makeOverridable (
   {
