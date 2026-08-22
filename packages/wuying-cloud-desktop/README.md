@@ -29,9 +29,6 @@ When `wuyingSource` is supplied directly, `hash` documents the corresponding
 artifact but `requireFile` is bypassed. Paths referenced from a flake must be
 tracked by that flake or already exist in the Nix store.
 
-The package overlay composes the Qt 5 WebEngine and libtiff ABI 5 compatibility
-packages required by this application.
-
 ## Use with the flake
 
 ```nix
