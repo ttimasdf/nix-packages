@@ -9,10 +9,13 @@
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
       overlays = import ./overlays;
+      rabit-lib = import ./lib/rabit-lib.nix { inherit lib; };
       packageSet = import ./lib/package-set.nix;
     in
     {
       inherit overlays;
+
+      inherit rabit-lib;
 
       packages = forAllSystems (
         system:
@@ -24,7 +27,8 @@
           };
         in
         packageSet {
-          inherit (pkgs) lib callPackage;
+          inherit (pkgs) lib;
+          callPackage = lib.callPackageWith (pkgs // { inherit rabit-lib; });
         }
       );
 

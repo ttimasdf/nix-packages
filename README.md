@@ -55,6 +55,18 @@ stdenv.mkDerivation {
 
 The helpers are intentionally not exposed through `packages.<system>` or `legacyPackages`; consume them through the overlay so they use the consumer's Nixpkgs instance.
 
+The flake also exports `rabit-lib`, the repository's general-purpose Nix helper set. Package definitions in this repository can request it as a `callPackage` argument:
+
+```nix
+{
+  lib,
+  rabit-lib,
+  ...
+}:
+
+rabit-lib.forAllNixFiles ./some-directory (path: path)
+```
+
 Package-specific NixOS modules are available as `nixosModules.astral`, `nixosModules.easytier-gui`, and `nixosModules.fido-linux-id`. Import only the modules a host uses:
 
 ```nix

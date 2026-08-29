@@ -10,7 +10,7 @@ _final: _prev: {
   # kdePackages = prev.kdePackages.overrideScope (kdeFinal: kdePrev: {
   #   ark = kdePrev.ark.overrideAttrs (oldAttrs: {
   #     # git -C source/ark format-patch -o ../../overlays/ark/patches 25.08.3..feat-cli7z
-  #     patches = (oldAttrs.patches or []) ++ ((import ../../lib/find-patches.nix { inherit (kdePrev) lib; }) ./patches);
+  #     patches = (oldAttrs.patches or []) ++ ((import ../../lib/rabit-lib.nix { inherit (kdePrev) lib; }).findPatches ./patches);
   #   });
   # });
 }

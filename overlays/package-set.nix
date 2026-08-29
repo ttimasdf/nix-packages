@@ -11,9 +11,12 @@ prev.lib.composeManyExtensions [
   })
   (
     packageFinal: packagePrev:
+    let
+      rabit-lib = import ../lib/rabit-lib.nix { inherit (packagePrev) lib; };
+    in
     import ../lib/package-set.nix {
       inherit (packagePrev) lib;
-      inherit (packageFinal) callPackage;
+      callPackage = packagePrev.lib.callPackageWith (packageFinal // { inherit rabit-lib; });
     }
   )
 ] final prev

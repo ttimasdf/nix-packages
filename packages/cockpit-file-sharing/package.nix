@@ -2,6 +2,7 @@
   # Standard Nixpkgs inputs
   fetchFromGitHub,
   lib,
+  rabit-lib,
   stdenv,
 
   # Build dependencies
@@ -24,15 +25,7 @@
 
 let
   yarn-berry = yarn-berry_4;
-
-  findPatches =
-    patchesDir:
-    lib.pipe patchesDir [
-      builtins.readDir
-      (lib.attrNames)
-      (lib.filter (name: lib.hasSuffix ".patch" name))
-      (lib.map (name: "${patchesDir}/${name}"))
-    ];
+  inherit (rabit-lib) findPatches;
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "cockpit-file-sharing";

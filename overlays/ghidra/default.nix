@@ -8,7 +8,7 @@ let
     makeDesktopItem
     copyDesktopItems
     ;
-  findPatches = import ../../lib/find-patches.nix { inherit lib; };
+  findPatches = (import ../../lib/rabit-lib.nix { inherit lib; }).findPatches;
   ghidra-ida = fetchFromGitHub {
     owner = "NyaMisty";
     repo = "GhidraIDA";

@@ -1,6 +1,6 @@
 _final: prev:
 let
-  findPatches = import ../../lib/find-patches.nix { inherit (prev) lib; };
+  findPatches = (import ../../lib/rabit-lib.nix { inherit (prev) lib; }).findPatches;
 in
 {
   kdePackages = prev.kdePackages.overrideScope (
