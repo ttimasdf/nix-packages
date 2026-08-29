@@ -11,7 +11,7 @@ let
     nvtop = import ./nvtop.nix;
     qt68 = import ./qt68.nix;
     wps = import ./wps.nix;
-    xxzip-natspec = import ./xxzip-natspec.nix;
+    xxzip-natspec = import ./xxzip-natspec;
   };
 
   aggregateOverlays = [ packageOverlay ] ++ builtins.attrValues namedOverlays;

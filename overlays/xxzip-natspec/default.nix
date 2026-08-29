@@ -2,6 +2,7 @@
 final: prev:
 let
   inherit (prev) lib;
+  findPatches = (import ../../lib/rabit-lib.nix { inherit (prev) lib; }).findPatches;
 in
 {
   zip-nls = (prev.zip.override { enableNLS = true; }).overrideAttrs (oldAttrs: {
@@ -42,13 +43,9 @@ in
     pname = oldAttrs.pname + "-nls";
     buildInputs = (oldAttrs.buildInputs or [ ]) ++ [ final.libnatspec ];
 
-    # AUR's 7zip-natspec patch, pinned to the package repository commit.
-    patches = (oldAttrs.patches or [ ]) ++ [
-      (prev.fetchpatch {
-        url = "https://aur.archlinux.org/cgit/aur.git/plain/natspec.patch?h=7zip-natspec&id=39b3c4a1975d91c698b076e98bdc6e0a92a83b46";
-        hash = "sha256-n3bELiCTRT33loiJsgns3N1x5fLlRkhjzknsN1r2PFE=";
-      })
-    ];
+    # AUR's 7zip-natspec patch, vendored with LF line endings: the pristine
+    # AUR patch is CRLF and no longer applies to LF-formatted 7-Zip sources.
+    patches = (oldAttrs.patches or [ ]) ++ (findPatches ./patches);
 
     postPatch = (oldAttrs.postPatch or "") + ''
       substituteInPlace CPP/7zip/Archive/Zip/ZipItem.cpp \
