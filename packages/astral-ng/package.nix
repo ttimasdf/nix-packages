@@ -13,13 +13,13 @@
 
 let
   pname = "astral-ng";
-  version = "0-unstable-2026-08-16";
+  version = "3.0.0";
 
   src = fetchFromGitHub {
     owner = "ttimasdf";
     repo = "astral-ng";
-    rev = "bc4ce43c904c6f521bfcf18dce1cf437f792801c";
-    hash = "sha256-G1Y2AQPdRx2HyCK6zyPhAYbgrKecPBcrj9WWxM8rwnw=";
+    tag = "v${version}";
+    hash = "sha256-t2hddUYjbUzheEJgiM8sl4eh0ncw82z7pa+HqaBN/Ms=";
     fetchSubmodules = true;
   };
 
