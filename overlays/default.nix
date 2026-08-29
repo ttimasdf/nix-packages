@@ -2,6 +2,7 @@ let
   packageOverlay = import ./package-set.nix;
 
   namedOverlays = {
+    _7zz-nls = import ./_7zz-nls;
     ark = import ./ark;
     clash-verge-rev = import ./clash-verge-rev.nix;
     cockpit-zfs = import ./cockpit-zfs;
@@ -10,8 +11,9 @@ let
     kscreen = import ./kscreen;
     nvtop = import ./nvtop.nix;
     qt68 = import ./qt68.nix;
+    unzip-nls = import ./unzip-nls.nix;
     wps = import ./wps.nix;
-    xxzip-natspec = import ./xxzip-natspec;
+    zip-nls = import ./zip-nls.nix;
   };
 
   aggregateOverlays = [ packageOverlay ] ++ builtins.attrValues namedOverlays;

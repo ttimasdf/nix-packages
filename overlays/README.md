@@ -13,8 +13,8 @@ Other overlays remain individually available for consumers that want a narrower 
 ```nix
 {
   nixpkgs.overlays = [
-    inputs.known-rabbit-packages.overlays.default
-    inputs.known-rabbit-packages.overlays.xxzip-natspec
+    inputs.known-rabbit-packages.overlays.unzip-nls
+    inputs.known-rabbit-packages.overlays.zip-nls
   ];
 }
 ```
@@ -25,7 +25,7 @@ For a standalone package evaluation:
 let
   pkgs = import inputs.nixpkgs {
     system = "x86_64-linux";
-    overlays = [ inputs.known-rabbit-packages.overlays.default ];
+    overlays = [ inputs.known-rabbit-packages.overlays.zip-nls ];
   };
 in
 pkgs.zip-nls
@@ -35,6 +35,7 @@ pkgs.zip-nls
 
 | Overlay | Purpose and attributes |
 | --- | --- |
+| `_7zz-nls` | Adds `pkgs._7zz-nls`, a 7-Zip variant that decodes unmarked ZIP filenames as CP936 via libnatspec; the AUR natspec patch is vendored under [`_7zz-nls/patches`](_7zz-nls/patches). |
 | `ark` | Development scaffold for KDE Ark CLI/7z patches. Patch files are present, but the application remains disabled in `overlays/ark/default.nix` until explicitly enabled. See [`ark/README.md`](ark/README.md). |
 | `clash-verge-rev` | Pins `pkgs.clash-verge-rev` to the repository's tested release. |
 | `cockpit-zfs` | Applies the local branding-removal patches to `pkgs.cockpit-zfs`; the result is named `cockpit-zfs-patched`. |
@@ -43,7 +44,8 @@ pkgs.zip-nls
 | `kscreen` | Applies local KDE KScreen patches through the `kdePackages` scope. |
 | `nvtop` | Adds `pkgs.nvtopPackages.nvidia-intel`, built with both Intel and NVIDIA support. |
 | `qt68` | Exposes the pinned Qt 6.8 package set and Python 3.12 bindings as `qt68`, `qt68Packages`, `qt68python312`, `qt68pyside6`, and `qt68shiboken6`. |
+| `unzip-nls` | Adds `pkgs.unzip-nls` (Info-ZIP unzip with NLS) hardcoding CP936 for DOS and Windows charset detection of legacy Chinese archive filenames, and skipping re-decoding of UTF-8-flagged entries. |
 | `wps` | Adds `pkgs.wpsoffice-cn-fcitx`, wrapping WPS executables with Fcitx input-method environment variables. |
-| `xxzip-natspec` | Adds `zip-nls`, `unzip-nls`, and `_7zz-nls` with CP936/libnatspec decoding for legacy Chinese archive filenames. |
+| `zip-nls` | Adds `pkgs.zip-nls` (Info-ZIP zip with NLS) hardcoding CP936 charset emission for legacy Chinese archive filenames. |
 
 Use `overlays.default` for the package set, `overlays.all` when you trust every repository override, or one of the named overlays for a narrower policy.
