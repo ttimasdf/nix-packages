@@ -1,8 +1,9 @@
 # Binary Ninja
 
 This package exposes one commercial Binary Ninja package as `pkgs.binaryninja`.
-It is a user-supplied proprietary archive, so the archive must be added to the
-Nix store before evaluation/build.
+It is a user-supplied proprietary archive. The package intentionally has no
+default version or hash: every user must provide the archive through an
+explicit `requireFile` expression.
 
 ## Add the vendor archive
 
@@ -10,67 +11,89 @@ Download a Linux commercial archive from Binary Ninja. Stable archives use a
 `-stable` suffix in the filename; development archives use a `-dev` suffix and
 no `-stable` suffix.
 
-For the current stable package:
+From the repository root, import the archive and obtain its hash:
 
 ```console
-nix-prefetch-url file:///path/to/binaryninja_linux_commercial.5.3.9757-stable.7z
+scripts/nix-store-add.sh binaryninja_linux_commercial.5.3.9757-stable.7z
 ```
 
-The resulting store path is accepted by `requireFile` when the filename and
-hash match the package arguments.
-
-## Stable and development channels
-
-The default package is the stable channel:
-
-```nix
-environment.systemPackages = [ pkgs.binaryninja ];
-```
-
-The package detects a `-dev` version suffix and changes its executable and
-Desktop Entry names. This permits stable and development channels to coexist:
+Then provide that archive to the package as `src` using `requireFile`:
 
 ```nix
 { pkgs, ... }:
-let
-  binaryninja-dev = pkgs.binaryninja.override {
-    version = "5.3.8664-dev";
-    hash = "sha256-UEG3bcNmFjqIzfds5/Wrspn+CCnbI5vy0DSJXT6UQUQ=";
-  };
-in
 {
-  environment.systemPackages = [
-    pkgs.binaryninja       # binaryninja
-    binaryninja-dev        # binaryninja-dev
+  environment.systemPackages = with pkgs; [
+    (binaryninja.override {
+      src = requireFile rec {
+        name = "binaryninja_linux_commercial.5.3.9757-stable.7z";
+        hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
+        message = "add BN to nix store with: nix-store-add.sh ${name}";
+      };
+    })
   ];
 }
 ```
 
-For the development override, add the corresponding archive to the store:
+The `name` must match the downloaded archive exactly. Binary Ninja's version
+is inferred from this filename. Do not pass the downloaded file directly or
+omit `requireFile`; doing so would make the proprietary source unsuitable for
+this package collection.
+
+## Stable and development channels
+
+The package detects a `-dev` version suffix and changes its executable and
+Desktop Entry names. Provide a separate `requireFile` source for each channel
+to install stable and development channels side by side:
+
+```nix
+{ pkgs, ... }:
+{
+  environment.systemPackages = with pkgs; [
+    (binaryninja.override {
+      src = requireFile rec {
+        name = "binaryninja_linux_commercial.5.3.9757-stable.7z";
+        hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
+        message = "add BN to nix store with: nix-store-add.sh ${name}";
+      };
+    }) # binaryninja
+    (binaryninja.override {
+      src = requireFile rec {
+        name = "binaryninja_linux_commercial.5.3.8664-dev.7z";
+        hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
+        message = "add BN to nix store with: nix-store-add.sh ${name}";
+      };
+    }) # binaryninja-dev
+  ];
+}
+```
+
+For the development override, run the store helper from the repository root:
 
 ```console
-nix-prefetch-url file:///path/to/binaryninja_linux_commercial.5.3.8664-dev.7z
+scripts/nix-store-add.sh binaryninja_linux_commercial.5.3.8664-dev.7z
 ```
 
 A stable package installs `binaryninja` and `bnpython3` with a `Binary Ninja`
 Desktop Entry. A development package installs `binaryninja-dev` and
 `bnpython3-dev` with a `Binary Ninja (Dev Channel)` Desktop Entry.
 
-`binaryNinjaSource` can also be supplied in an override when the archive is
-already represented by a Nix path or another fetcher:
+If the archive has already been imported into the Nix store, it must still be
+wrapped in `requireFile` when passed as `src`:
 
 ```nix
-pkgs.binaryninja.override {
-  version = "5.3.8664-dev";
-  hash = "sha256-UEG3bcNmFjqIzfds5/Wrspn+CCnbI5vy0DSJXT6UQUQ=";
-  binaryNinjaSource = /path/to/binaryninja_linux_commercial.5.3.8664-dev.7z;
+with pkgs;
+binaryninja.override {
+  src = requireFile rec {
+    name = "binaryninja_linux_commercial.5.3.8664-dev.7z";
+    hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
+    message = ''
+      Add the Binary Ninja archive to the Nix store with:
+        scripts/nix-store-add.sh ${name}
+    '';
+  };
 }
 ```
 
-The hash shown above is an example for the latest development archive known to
-this package at the time of writing; verify the hash for the exact archive you
-download.
-
 ## Use with the flake
 
-Apply `inputs.known-rabbit-packages.overlays.default` to the Nixpkgs instance used by your system, then install `pkgs.binaryninja` or a version override as shown above. Build directly with `nix build github:ttimasdf/nix-packages#binaryninja` after importing the archive.
+Apply `inputs.known-rabbit-packages.overlays.default` to the Nixpkgs instance used by your system, then install a `pkgs.binaryninja.override` with a user-supplied `requireFile` source as shown above. The package cannot be built without this explicit source.
