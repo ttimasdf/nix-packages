@@ -2,7 +2,7 @@
 
 This package exposes one commercial Binary Ninja package as `pkgs.binaryninja`.
 It is a user-supplied proprietary archive. The package intentionally has no
-default version or hash: every user must provide the archive through an
+default version or archive: every user must provide the archive through an
 explicit `requireFile` expression.
 
 ## Add the vendor archive
@@ -17,14 +17,15 @@ From the repository root, import the archive and obtain its hash:
 scripts/nix-store-add.sh binaryninja_linux_commercial.5.3.9757-stable.7z
 ```
 
-Then provide that archive to the package as `src` using `requireFile`:
+Then provide that archive to the package as `binaryNinjaArchive` using
+`requireFile`:
 
 ```nix
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
     (binaryninja.override {
-      src = requireFile rec {
+      binaryNinjaArchive = requireFile rec {
         name = "binaryninja_linux_commercial.5.3.9757-stable.7z";
         hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
         message = "add BN to nix store with: nix-store-add.sh ${name}";
@@ -39,6 +40,12 @@ is inferred from this filename. Do not pass the downloaded file directly or
 omit `requireFile`; doing so would make the proprietary source unsuitable for
 this package collection.
 
+## Python runtime
+
+The package selects its Python runtime from the archive version automatically:
+Binary Ninja versions before 6.0 use `pkgs.python312`, while version 6.0 and
+newer use `pkgs.python313`.
+
 ## Stable and development channels
 
 The package detects a `-dev` version suffix and changes its executable and
@@ -50,15 +57,15 @@ to install stable and development channels side by side:
 {
   environment.systemPackages = with pkgs; [
     (binaryninja.override {
-      src = requireFile rec {
+      binaryNinjaArchive = requireFile rec {
         name = "binaryninja_linux_commercial.5.3.9757-stable.7z";
         hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
         message = "add BN to nix store with: nix-store-add.sh ${name}";
       };
     }) # binaryninja
     (binaryninja.override {
-      src = requireFile rec {
-        name = "binaryninja_linux_commercial.5.3.8664-dev.7z";
+      binaryNinjaArchive = requireFile rec {
+        name = "binaryninja_linux_commercial.6.1.10544-dev.7z";
         hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
         message = "add BN to nix store with: nix-store-add.sh ${name}";
       };
@@ -67,10 +74,10 @@ to install stable and development channels side by side:
 }
 ```
 
-For the development override, run the store helper from the repository root:
+For the development archive, run the store helper from the repository root:
 
 ```console
-scripts/nix-store-add.sh binaryninja_linux_commercial.5.3.8664-dev.7z
+scripts/nix-store-add.sh binaryninja_linux_commercial.6.1.10544-dev.7z
 ```
 
 A stable package installs `binaryninja` and `bnpython3` with a `Binary Ninja`
@@ -78,13 +85,13 @@ Desktop Entry. A development package installs `binaryninja-dev` and
 `bnpython3-dev` with a `Binary Ninja (Dev Channel)` Desktop Entry.
 
 If the archive has already been imported into the Nix store, it must still be
-wrapped in `requireFile` when passed as `src`:
+wrapped in `requireFile` when passed as `binaryNinjaArchive`:
 
 ```nix
 with pkgs;
 binaryninja.override {
-  src = requireFile rec {
-    name = "binaryninja_linux_commercial.5.3.8664-dev.7z";
+  binaryNinjaArchive = requireFile rec {
+    name = "binaryninja_linux_commercial.6.1.10544-dev.7z";
     hash = "sha256-REPLACE-WITH-THE-HASH-FROM-NIX-STORE-ADD";
     message = ''
       Add the Binary Ninja archive to the Nix store with:
@@ -96,4 +103,7 @@ binaryninja.override {
 
 ## Use with the flake
 
-Apply `inputs.known-rabbit-packages.overlays.default` to the Nixpkgs instance used by your system, then install a `pkgs.binaryninja.override` with a user-supplied `requireFile` source as shown above. The package cannot be built without this explicit source.
+Apply `inputs.known-rabbit-packages.overlays.default` to the Nixpkgs instance
+used by your system, then install a `pkgs.binaryninja.override` with a
+user-supplied `requireFile` archive as shown above. The package cannot be built
+without this explicit archive.

@@ -1,45 +1,38 @@
-{
-  lib,
-  stdenv,
-  fetchurl,
-  autoPatchelfHook,
-  makeWrapper,
-  copyDesktopItems,
-  makeDesktopItem,
-  makeSanitizedLauncherHook,
-  _7zz,
-  dbus,
-  fontconfig,
-  freetype,
-  glib,
-  libGL,
-  libGLU,
-  libxkbcommon,
-  libxml2,
-  wayland,
-  libxi,
-  libxrender,
-  libxcb-image,
-  libxcb-keysyms,
-  libxcb-render-util,
-  libxcb-wm,
-  qt6Packages,
-  python312,
-  qt68Packages ? null,
-  qt68python312 ? null,
-  useQtFromNixpkgs ? false,
-  src ? throw ''
-    pkgs.binaryninja requires a user-supplied `src`.
+{ lib
+, pkgs
+, stdenv
+, fetchurl
+, autoPatchelfHook
+, makeWrapper
+, copyDesktopItems
+, makeDesktopItem
+, makeSanitizedLauncherHook
+, _7zz
+, dbus
+, fontconfig
+, freetype
+, glib
+, libGL
+, libGLU
+, libxkbcommon
+, libxml2
+, wayland
+, libxi
+, libxrender
+, libxcb-image
+, libxcb-keysyms
+, libxcb-render-util
+, libxcb-wm
+, qt6Packages
+, binaryNinjaArchive ? throw ''
+    pkgs.binaryninja requires a user-supplied `binaryNinjaArchive`.
     Set it to a `requireFile` expression for the Binary Ninja archive.
-  '',
+  ''
+,
 }:
 
 let
-  _ = lib.asserts.assertMsg (
-    !useQtFromNixpkgs || (qt68Packages != null && qt68python312 != null)
-  ) "qt68Packages and qt68python312 must be provided when useQtFromNixpkgs is true";
-
-  archiveName = builtins.baseNameOf (toString src);
+  archiveName = builtins.baseNameOf (toString binaryNinjaArchive);
   versionMatch = builtins.match
     ".*([0-9]+[.][0-9]+[.][0-9]+)(-dev)?.*"
     archiveName;
@@ -49,13 +42,11 @@ let
     else
       builtins.elemAt versionMatch 0;
   isDev = builtins.elemAt versionMatch 1 == "-dev";
+  pythonPackage = if lib.versionAtLeast version "6.0" then pkgs.python313 else pkgs.python312;
   pname = "binaryninja";
   executableName = pname + lib.optionalString isDev "-dev";
   pythonExecutableName = "bnpython3" + lib.optionalString isDev "-dev";
   desktopName = "Binary Ninja" + lib.optionalString isDev " (Dev Channel)";
-
-  qt6Packages' = if useQtFromNixpkgs then qt68Packages else qt6Packages;
-  python3' = if useQtFromNixpkgs then qt68python312 else python312;
 
   desktopIcon = fetchurl {
     url = "https://docs.binary.ninja/img/logo.png";
@@ -63,7 +54,8 @@ let
   };
 in
 stdenv.mkDerivation (finalAttrs: {
-  inherit pname version src;
+  inherit pname version;
+  src = binaryNinjaArchive;
 
   nativeBuildInputs = [
     _7zz
@@ -71,8 +63,8 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper
     copyDesktopItems
     makeSanitizedLauncherHook
-    python3'.pkgs.wrapPython
-    qt6Packages'.wrapQtAppsHook
+    pythonPackage.pkgs.wrapPython
+    qt6Packages.wrapQtAppsHook
   ];
 
   buildInputs = [
@@ -91,26 +83,16 @@ stdenv.mkDerivation (finalAttrs: {
     libxcb-keysyms
     libxcb-render-util
     libxcb-wm
-    qt6Packages'.qtbase
-    qt6Packages'.qtdeclarative
-    qt6Packages'.qtwayland
-    python3'
-    python3'.pkgs.pip
-  ]
-  ++ lib.optionals useQtFromNixpkgs [
-    python3'.pkgs.pyside6
-    python3'.pkgs.shiboken6
+    qt6Packages.qtbase
+    qt6Packages.qtdeclarative
+    qt6Packages.qtwayland
+    pythonPackage
+    pythonPackage.pkgs.pip
   ];
 
-  pythonPath =
-    with python3'.pkgs;
-    [ pip ]
-    ++ lib.optionals useQtFromNixpkgs [
-      pyside6
-      shiboken6
-    ];
+  pythonPath = with pythonPackage.pkgs; [ pip ];
 
-  appendRunpaths = [ "${lib.getLib python3'}/lib" ];
+  appendRunpaths = [ "${lib.getLib pythonPackage}/lib" ];
 
   unpackPhase = ''
     runHook preUnpack
@@ -149,20 +131,12 @@ stdenv.mkDerivation (finalAttrs: {
       -not -name 'libQt6*.so.*' \
       -not -name 'libshiboken6.abi*.so.*' \
       -not -name 'libpyside6.abi*.so.*' \
+      -not -path "$installDir/plugins/python/lib/*" \
       -delete
-
-    if [ "${toString useQtFromNixpkgs}" = "1" ]; then
-      find "$installDir" -name 'libicu*.so.*' -delete
-      find "$installDir" -name 'libQt6*.so.*' -delete
-      find "$installDir/qt" -type f -name '*.so' -delete
-      rm -r "$installDir/python3/PySide6" "$installDir/python3/shiboken6"
-      find "$installDir" -name 'libshiboken6.abi*.so.*' -delete
-      find "$installDir" -name 'libpyside6.abi*.so.*' -delete
-    fi
 
     buildPythonPath "$pythonPath"
     makeWrapper "$installDir/binaryninja" "$out/bin/${executableName}" \
-      --prefix PATH : "${lib.makeBinPath [ python3' ]}" \
+      --prefix PATH : "${lib.makeBinPath [ pythonPackage ]}" \
       --prefix PYTHONPATH : "$program_PYTHONPATH" \
       --prefix LD_LIBRARY_PATH : "$installDir" \
       "''${sanitizedLauncherArgs[@]}" \
