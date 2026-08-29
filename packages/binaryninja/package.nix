@@ -1,7 +1,6 @@
 {
   lib,
   stdenv,
-  requireFile,
   fetchurl,
   autoPatchelfHook,
   makeWrapper,
@@ -29,9 +28,10 @@
   qt68Packages ? null,
   qt68python312 ? null,
   useQtFromNixpkgs ? false,
-  version ? "5.3.9757",
-  hash ? "sha256-m0THmHL7CX0F/E4wA+AghRMa9y9c85r+nCgkoUmnZjQ=",
-  binaryNinjaSource ? null,
+  src ? throw ''
+    pkgs.binaryninja requires a user-supplied `src`.
+    Set it to a `requireFile` expression for the Binary Ninja archive.
+  '',
 }:
 
 let
@@ -39,25 +39,23 @@ let
     !useQtFromNixpkgs || (qt68Packages != null && qt68python312 != null)
   ) "qt68Packages and qt68python312 must be provided when useQtFromNixpkgs is true";
 
-  isDev = lib.hasSuffix "-dev" version;
-  pname = if isDev then "binaryninja-dev" else "binaryninja";
-  executableName = pname;
-  pythonExecutableName = if isDev then "bnpython3-dev" else "bnpython3";
+  archiveName = builtins.baseNameOf (toString src);
+  versionMatch = builtins.match
+    ".*([0-9]+[.][0-9]+[.][0-9]+)(-dev)?.*"
+    archiveName;
+  version =
+    if versionMatch == null then
+      throw "Binary Ninja archive name must contain a version like 5.3.9757 or 5.3.9757-dev, got: ${archiveName}"
+    else
+      builtins.elemAt versionMatch 0;
+  isDev = builtins.elemAt versionMatch 1 == "-dev";
+  pname = "binaryninja";
+  executableName = pname + lib.optionalString isDev "-dev";
+  pythonExecutableName = "bnpython3" + lib.optionalString isDev "-dev";
   desktopName = "Binary Ninja" + lib.optionalString isDev " (Dev Channel)";
-  archiveName = "binaryninja_linux_commercial.${version}${lib.optionalString (!isDev) "-stable"}.7z";
 
   qt6Packages' = if useQtFromNixpkgs then qt68Packages else qt6Packages;
   python3' = if useQtFromNixpkgs then qt68python312 else python312;
-
-  src =
-    if binaryNinjaSource != null then
-      binaryNinjaSource
-    else
-      requireFile {
-        name = archiveName;
-        inherit hash;
-        url = "https://binary.ninja/recover/";
-      };
 
   desktopIcon = fetchurl {
     url = "https://docs.binary.ninja/img/logo.png";
@@ -189,7 +187,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   desktopItems = [
     (makeDesktopItem {
-      name = pname;
+      name = executableName;
       exec = executableName;
       icon = pname;
       inherit desktopName;
