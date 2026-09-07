@@ -1,6 +1,6 @@
 let
   modules = {
-    astral = ./astral.nix;
+    enmesh = ./enmesh.nix;
     easytier-gui = ./easytier-gui.nix;
     fido-linux-id = ./fido-linux-id.nix;
   };

@@ -67,12 +67,12 @@ The flake also exports `rabit-lib`, the repository's general-purpose Nix helper 
 rabit-lib.forAllNixFiles ./some-directory (path: path)
 ```
 
-Package-specific NixOS modules are available as `nixosModules.astral`, `nixosModules.easytier-gui`, and `nixosModules.fido-linux-id`. Import only the modules a host uses:
+Package-specific NixOS modules are available as `nixosModules.enmesh`, `nixosModules.easytier-gui`, and `nixosModules.fido-linux-id`. Import only the modules a host uses:
 
 ```nix
 {
   imports = [
-    inputs.known-rabbit-packages.nixosModules.astral
+    inputs.known-rabbit-packages.nixosModules.enmesh
     inputs.known-rabbit-packages.nixosModules.fido-linux-id
   ];
 }
@@ -92,8 +92,7 @@ Each package directory contains a README with its purpose, platform and input re
 
 | Package | Documentation |
 | --- | --- |
-| `astral` | [`packages/astral/README.md`](packages/astral/README.md) |
-| `astral-ng` | [`packages/astral-ng/README.md`](packages/astral-ng/README.md) |
+| `enmesh` | [`packages/enmesh/README.md`](packages/enmesh/README.md) |
 | `binaryninja` | [`packages/binaryninja/README.md`](packages/binaryninja/README.md) |
 | `burpsuite` | [`packages/burpsuite/README.md`](packages/burpsuite/README.md) |
 | `cockpit-file-sharing` | [`packages/cockpit-file-sharing/README.md`](packages/cockpit-file-sharing/README.md) |

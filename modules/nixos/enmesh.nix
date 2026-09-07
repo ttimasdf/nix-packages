@@ -6,18 +6,18 @@
 }:
 
 let
-  cfg = config.programs.astral;
+  cfg = config.programs.enmesh;
 in
 {
-  options.programs.astral = {
-    enable = lib.mkEnableOption "astral";
-    package = lib.mkPackageOption pkgs "astral-ng" { };
+  options.programs.enmesh = {
+    enable = lib.mkEnableOption "enmesh";
+    package = lib.mkPackageOption pkgs "enmesh" { };
   };
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [ cfg.package ];
 
-    security.wrappers.astral = {
+    security.wrappers.enmesh = {
       owner = "root";
       group = "root";
       capabilities = "cap_net_admin+ep";

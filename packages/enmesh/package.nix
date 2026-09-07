@@ -12,14 +12,14 @@
 }:
 
 let
-  pname = "astral-ng";
-  version = "3.0.0";
+  pname = "enmesh";
+  version = "3.0.0-rc.3";
 
   src = fetchFromGitHub {
     owner = "ttimasdf";
-    repo = "astral-ng";
+    repo = "enmesh";
     tag = "v${version}";
-    hash = "sha256-t2hddUYjbUzheEJgiM8sl4eh0ncw82z7pa+HqaBN/Ms=";
+    hash = "sha256-KSjd/u5iBrrnz7VidvELqmYA7oJNt4F8GYC1gRYKW/g=";
     fetchSubmodules = true;
   };
 
@@ -28,14 +28,14 @@ let
 
     sourceRoot = "${src.name}/rust";
 
-    cargoHash = "sha256-hpGO7uoR4t65Tawy+4wyETu5j9yCl7Q59rU55cOC4BM=";
+    cargoHash = "sha256-Pk0/d06TagbaJnyB8Uojqr4XzWzX/5EoRr3wJhDZLOw=";
 
     nativeBuildInputs = [
       protobuf
       rustPlatform.bindgenHook
     ];
 
-    passthru.libraryPath = "lib/librust_lib_astral.so";
+    passthru.libraryPath = "lib/librust_lib_enmesh.so";
 
     meta.platforms = [ "x86_64-linux" ];
   };
@@ -46,10 +46,10 @@ flutter344.buildFlutterApplication {
   autoPubspecLock = src + "/pubspec.lock";
 
   customSourceBuilders = {
-    rust_lib_astral =
+    rust_lib_enmesh =
       { version, src, ... }:
       stdenv.mkDerivation {
-        pname = "rust_lib_astral";
+        pname = "rust_lib_enmesh";
         inherit version src;
         inherit (src) passthru;
 
@@ -85,7 +85,7 @@ flutter344.buildFlutterApplication {
 
   postInstall = ''
     mkdir -p $out/share/pixmaps
-    cp $out/app/${pname}/data/flutter_assets/assets/logo.png $out/share/pixmaps/astral-ng.png
+    cp $out/app/${pname}/data/flutter_assets/assets/logo.png $out/share/pixmaps/enmesh.png
   '';
 
   extraWrapProgramArgs = ''
@@ -94,11 +94,11 @@ flutter344.buildFlutterApplication {
 
   desktopItems = [
     (makeDesktopItem {
-      name = "astral-ng";
-      desktopName = "Astral-NG";
-      comment = "Astral-NG is an Easytier desktop client";
-      exec = "astral %u";
-      icon = "astral-ng";
+      name = "enmesh";
+      desktopName = "Enmesh";
+      comment = "Enmesh is an EasyTier desktop client";
+      exec = "enmesh %u";
+      icon = "enmesh";
       terminal = false;
       type = "Application";
       categories = [ "Network" ];
@@ -117,11 +117,11 @@ flutter344.buildFlutterApplication {
   };
 
   meta = with lib; {
-    description = "Astral desktop client";
-    homepage = "https://github.com/ttimasdf/astral-ng";
+    description = "Enmesh desktop client";
+    homepage = "https://github.com/ttimasdf/enmesh";
     license = licenses.gpl3;
     maintainers = with maintainers; [ ];
     platforms = [ "x86_64-linux" ];
-    mainProgram = "astral";
+    mainProgram = "enmesh";
   };
 }
