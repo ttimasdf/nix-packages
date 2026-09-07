@@ -45,41 +45,51 @@ The following cases were compared:
 This establishes an initialization-time Qt screen-placement bug and separates
 it from the video-rendering issue.
 
-## Fix in this checkpoint
+## Fix
 
-The overlay embeds Frida Gadget and loads [`frida_wemeet.js`](patch/frida_wemeet.js)
-at process startup. The script observes the bundled `libQt5Widgets.so.5`, looks
-up these exported C++ symbols by name, and replaces
-`QGraphicsDropShadowEffect::draw(QPainter *)` with
-`QGraphicsEffect::drawSource(QPainter *)`:
+The current implementation is a small native `LD_PRELOAD` library,
+[`wemeet-drop-shadow-fix.c`](wemeet-drop-shadow-fix.c). A normal preload
+function override is insufficient here: `QGraphicsDropShadowEffect::draw()` is
+a C++ virtual method, and the bundled Qt vtable contains a direct pointer to
+its implementation rather than a dynamically interposed call.
 
-```text
-_ZN25QGraphicsDropShadowEffect4drawEP8QPainter
-_ZN15QGraphicsEffect10drawSourceEP8QPainter
-```
+At library construction time, the shim:
 
-This removes only the drop-shadow rendering path; the source widget and video
-surfaces are still drawn. Symbol lookup and Frida's runtime hook avoid a
-hard-coded file offset or an on-disk instruction patch. If the expected module
-or symbols are absent, the script logs the mismatch and leaves WeMeet
-unchanged.
+1. obtains the already-loaded bundled `libQt5Widgets.so.5` with `RTLD_NOLOAD`;
+2. resolves the Qt `Qt_5` symbols for the drop-shadow vtable, `draw()`, and
+   `QGraphicsEffect::drawSource()`;
+3. verifies that all symbols belong to WeMeet's Qt library;
+4. uses the vtable symbol's ELF size as a bounded scan range and locates the
+   unique entry pointing to `draw()`;
+5. temporarily makes that vtable page writable, replaces the pointer with
+   `drawSource()`, and restores read-only protection.
 
-The package also exposes `wemeet-wayland-playback`, an experimental launcher
-that removes only `wemeet-camera-fix` before selecting the Wayland Qt platform.
-It may restore playback but can regress the local camera preview.
+The vtable slot is discovered from symbols at runtime; no file offset, machine
+instruction sequence, or fixed vtable index is embedded. Missing symbols,
+ambiguous matches, unexpected libraries, or protection failures cause the shim
+to leave the process unchanged. The workaround removes Qt drop shadows but
+continues to draw the source widget and video surfaces.
 
-## Usage and limitations
+The first working version used a Frida Gadget hook. The native library replaces
+that runtime dependency while retaining the same symbol-level behavior and
+supporting both `x86_64-linux` and `aarch64-linux` without architecture-specific
+instruction patching.
 
-Opt into `known-rabbit-packages.overlays.wemeet` (or use `overlays.all`) and
-launch the Xwayland variant for the most reliable current workaround:
+## Launchers and limitations
+
+The overlay adds the native shim to the `wemeet` and `wemeet-xwayland` launchers.
+The experimental `wemeet-wayland-playback` launcher remains available; it
+removes only `wemeet-camera-fix` before selecting the Wayland Qt platform. That
+may restore playback but can regress the local camera preview.
+
+Use the Xwayland launcher for the most reliable current workaround:
 
 ```console
 wemeet-xwayland
 ```
 
-The hook has been verified to install at startup and the bundled Qt code is
-left unchanged. Full meeting validation still needs to be repeated after each
-Tencent release. The workaround intentionally trades Qt drop shadows for
-stability and remains dependent on the bundled Qt symbols being exported. A
-future native preload implementation may replace the Frida runtime while
-preserving the same symbol-level behavior.
+The native hook has been compiled and verified to install against the current
+bundled Qt. Full meeting validation should be repeated after each Tencent
+release. It intentionally fails closed if Tencent changes the Qt major version,
+removes the exported ABI symbols, changes the vtable representation, or loads
+Qt in a way that occurs after the constructor hook runs.

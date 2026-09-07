@@ -1,55 +1,52 @@
 _final: prev:
 let
-  fridaVersion = "17.5.1";
-  fridaAsset =
-    {
-      x86_64-linux = {
-        arch = "x86_64";
-        hash = "sha256-1mn6w1IHWQpNWM+jGRxYZFkM3cjsjoJ/rydE/3Wffbc=";
-      };
-      aarch64-linux = {
-        arch = "arm64";
-        hash = "sha256-tojSNB61Rdhjiv7SsSqKMOJcaTR9c/Zhc9MV6Ebs7o8=";
-      };
-    }
-    .${prev.stdenv.hostPlatform.system};
-  fridaGadget = prev.fetchurl {
-    url = "https://github.com/frida/frida/releases/download/${fridaVersion}/frida-gadget-${fridaVersion}-linux-${fridaAsset.arch}.so.xz";
-    inherit (fridaAsset) hash;
+  wemeetDropShadowFix = prev.stdenv.mkDerivation {
+    pname = "wemeet-drop-shadow-fix";
+    version = "0-unstable-2026-09-07";
+
+    src = ./wemeet-drop-shadow-fix.c;
+    dontUnpack = true;
+    dontWrapQtApps = true;
+
+    buildPhase = ''
+      runHook preBuild
+
+      $CC $CFLAGS -Wall -Wextra -Werror -fPIC -shared \
+        -o libwemeet-drop-shadow-fix.so $src -ldl
+
+      runHook postBuild
+    '';
+
+    installPhase = ''
+      runHook preInstall
+
+      install -Dm755 ./libwemeet-drop-shadow-fix.so \
+        $out/lib/libwemeet-drop-shadow-fix.so
+
+      runHook postInstall
+    '';
+
+    meta = {
+      description = "Native vtable hook for WeMeet's bundled Qt";
+      homepage = "https://wemeet.qq.com";
+      license = prev.lib.licenses.mit;
+      platforms = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+    };
   };
-  fridaScript = prev.writeText "frida_wemeet.js" (builtins.readFile ./patch/frida_wemeet.js);
-  fridaConfig = prev.writeText "libgadget.config" (
-    builtins.toJSON {
-      interaction = {
-        type = "script";
-        path = toString fridaScript;
-      };
-    }
-  );
 in
 {
   wemeet = prev.wemeet.overrideAttrs (oldAttrs: {
-    pname = oldAttrs.pname + "-frida-patched";
+    pname = oldAttrs.pname + "-native-patched";
 
-    nativeBuildInputs = (oldAttrs.nativeBuildInputs or [ ]) ++ [
-      prev.patchelf
-      prev.xz
-    ];
+    nativeBuildInputs = (oldAttrs.nativeBuildInputs or [ ]) ++ [ prev.makeWrapper ];
 
-    postFixup = (oldAttrs.postFixup or "") + ''
-      # Load Frida before WeMeet's bundled Qt. The script resolves exported C++
-      # symbols by name and replaces drop-shadow rendering with direct source
-      # rendering, avoiding the stale QPaintDevice crash on external Xwayland
-      # outputs without relying on fixed file offsets or instruction bytes.
-      xz -dc ${fridaGadget} > "$out/app/wemeet/lib/libgadget.so"
-      chmod +x "$out/app/wemeet/lib/libgadget.so"
-      install -Dm444 ${fridaConfig} "$out/app/wemeet/lib/libgadget.config"
-      patchelf --add-needed libgadget.so "$out/app/wemeet/bin/wemeetapp"
-
-      # The native-Wayland camera shim forces libxcast onto an X11 EGLDisplay,
-      # which can make playback surface creation fail with EGL_BAD_ALLOC. Keep
-      # the normal launcher unchanged and expose an experimental playback-first
-      # variant that removes only this shim immediately before launching WeMeet.
+    # The upstream package creates the launchers in preFixup. Create the
+    # playback-first variant before adding our outer wrapper, then wrap every
+    # launcher so the native hook is present in all modes.
+    preFixup = (oldAttrs.preFixup or "") + ''
       cp "$out/bin/wemeet" "$out/bin/wemeet-wayland-playback"
       substituteInPlace "$out/bin/wemeet-wayland-playback" \
         --replace-fail \
@@ -67,6 +64,13 @@ in
       export LD_PRELOAD="$filteredPreload"
       export QT_QPA_PLATFORM=wayland
       exec "'
+
+      for launcher in "$out/bin/wemeet" \
+        "$out/bin/wemeet-xwayland" "$out/bin/wemeet-wayland-playback"; do
+        wrapProgram "$launcher" \
+          --prefix LD_PRELOAD : ${wemeetDropShadowFix}/lib/libwemeet-drop-shadow-fix.so
+      done
     '';
+
   });
 }
