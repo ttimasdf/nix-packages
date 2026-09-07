@@ -12,6 +12,7 @@ let
     nvtop = import ./nvtop.nix;
     qt68 = import ./qt68.nix;
     unzip-nls = import ./unzip-nls.nix;
+    wemeet = import ./wemeet;
     wps = import ./wps.nix;
     zip-nls = import ./zip-nls.nix;
   };
@@ -34,4 +35,4 @@ in
   default = packageOverlay;
   all = allOverlays;
 }
-// namedOverlays
+  // namedOverlays
