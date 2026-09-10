@@ -35,4 +35,4 @@ in
   default = packageOverlay;
   all = allOverlays;
 }
-  // namedOverlays
+// namedOverlays
