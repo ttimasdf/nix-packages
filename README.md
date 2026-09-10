@@ -128,6 +128,28 @@ nix build .#<package>
 nix fmt -- .
 ```
 
+### Testing a local checkout from a parent flake
+
+When developing this repository as the `known-rabbit-packages` input of the
+parent `nixos-config` checkout, Nix normally uses the locked GitHub revision.
+That means newly added or unpushed packages are invisible to evaluations of
+the parent flake. Temporarily substitute the local checkout with:
+
+```console
+nix eval --raw \
+  --override-input known-rabbit-packages path:./public-packages \
+  .#nixosConfigurations.<host>.pkgs.<package>.version
+
+nix build \
+  --override-input known-rabbit-packages path:./public-packages \
+  .#nixosConfigurations.<host>.pkgs.<package>
+```
+
+Run these commands from the parent repository. The override is evaluation-only;
+it does not modify `flake.lock`. After the package is committed and pushed,
+update the parent's locked `known-rabbit-packages` revision and verify without
+the override.
+
 Reusable Nix store helpers live under `scripts/`:
 
 ```console

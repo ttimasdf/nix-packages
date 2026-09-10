@@ -15,10 +15,11 @@ This repository publishes personal Nix packages, portable Nixpkgs overlays, and 
 
 ## Conventions
 
-- Package definitions use ordinary `callPackage` arguments.
+- Package definitions use ordinary `callPackage` arguments and live under `packages/<name>/package.nix` when package documentation or supporting files are needed.
+- Every package directory should include a README documenting its purpose, source/artifact assumptions, platform support, and usage.
 - Overlay files are portable `final: prev:` functions. Do not add repository-specific module arguments.
 - Keep opinionated overrides opt-in; do not compose them into `overlays.default`.
-- Add packages directly under `packages/` as a `.nix` file or directory with `package.nix`.
+- Add packages directly under `packages/` as a `.nix` file or a directory with `package.nix` and `README.md`.
 - Private-source packages do not belong in this public repository.
 - NUR-visible package values must evaluate on Nixpkgs unstable.
 
