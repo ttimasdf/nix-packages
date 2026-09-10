@@ -13,13 +13,13 @@
 
 let
   pname = "enmesh";
-  version = "3.0.0-rc.3";
+  version = "3.0.0";
 
   src = fetchFromGitHub {
     owner = "ttimasdf";
     repo = "enmesh";
     tag = "v${version}";
-    hash = "sha256-KSjd/u5iBrrnz7VidvELqmYA7oJNt4F8GYC1gRYKW/g=";
+    hash = "sha256-X7VoO6pVcOjm8OTzBhQifbDwSVFeQqjRhkgF7hYfZFE=";
     fetchSubmodules = true;
   };
 
