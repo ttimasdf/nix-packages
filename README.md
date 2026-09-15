@@ -86,6 +86,18 @@ imports = [ inputs.known-rabbit-packages.nixosModules.all ];
 
 Explicit named imports are recommended for host configurations because adding a module to this repository will not silently expand their module set.
 
+Package-specific Home Manager modules are available as `homeModules.ida-pro`. `programs.ida-pro.enable` installs `pkgs.ida-pro` and registers the installation with [`hcli`](https://github.com/HexRaysSA/ida-hcli) as the `nix` instance by merging into hcli's mutable `config.json` at activation time:
+
+```nix
+{
+  imports = [ inputs.known-rabbit-packages.homeModules.ida-pro ];
+
+  programs.ida-pro.enable = true;
+}
+```
+
+`programs.ida-pro.hcli.instanceName` (default `"nix"`) and `programs.ida-pro.hcli.default` control the registered instance; `programs.ida-pro.hcli.removeInstances` deletes stale entries such as a previous `hcli ida add` registration. `homeModules.all` imports the complete published Home Manager module set.
+
 ## Package documentation
 
 Each package directory contains a README with its purpose, platform and input requirements, and usage examples:

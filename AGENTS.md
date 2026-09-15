@@ -9,6 +9,7 @@ This repository publishes personal Nix packages, portable Nixpkgs overlays, and 
 - `overlays/package-set.nix`: fixed-point overlay containing packages and build-support helpers
 - `overlays/default.nix`: exported overlay index; `default` adds packages and build-support helpers, while `all` composes every distinct overlay
 - `modules/nixos/`: package-specific NixOS modules
+- `modules/home/`: package-specific Home Manager modules
 - `scripts/`: reusable Nix store and repository maintenance helpers
 - `default.nix`: NUR entry point
 - `flake.nix`: direct flake outputs

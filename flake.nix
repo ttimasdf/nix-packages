@@ -35,5 +35,7 @@
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
 
       nixosModules = import ./modules/nixos;
+
+      homeModules = import ./modules/home;
     };
 }

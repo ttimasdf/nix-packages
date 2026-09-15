@@ -19,4 +19,5 @@ packages
 // {
   inherit overlays;
   nixosModules = import ./modules/nixos;
+  homeModules = import ./modules/home;
 }
