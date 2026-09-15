@@ -60,9 +60,11 @@ in
         default = true;
         description = ''
           Register the IDA installation with {command}`hcli` by editing its
-          configuration file.
+          configuration file, and install {command}`hcli` itself.
         '';
       };
+
+      package = lib.mkPackageOption pkgs "hcli" { };
 
       instanceName = lib.mkOption {
         type = lib.types.str;
@@ -105,7 +107,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [ cfg.package ];
+    home.packages = [ cfg.package ] ++ lib.optional cfg.hcli.enable cfg.hcli.package;
 
     home.activation.idaProHcli = lib.mkIf cfg.hcli.enable (
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
