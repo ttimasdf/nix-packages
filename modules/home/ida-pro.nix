@@ -24,7 +24,6 @@ let
       instance_name="$2"
       instance_path="$3"
       set_default="$4"
-      remove_instances="$5"
 
       mkdir -p "$(dirname "$config_file")"
 
@@ -39,10 +38,8 @@ let
           --arg name "$instance_name" \
           --arg path "$instance_path" \
           --argjson default "$set_default" \
-          --argjson remove "$remove_instances" \
           '
-            .["ida.instances"] =
-              (((.["ida.instances"] // {}) | delpaths($remove | map([.]))) + { ($name): $path })
+            .["ida.instances"] = ((.["ida.instances"] // {}) + { ($name): $path })
             | if $default then .["ida.default"] = $name else . end
           ' <<<"$current"
       )"
@@ -85,17 +82,6 @@ in
         '';
       };
 
-      removeInstances = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        example = [ "ida92" ];
-        description = ''
-          Instance names to delete from hcli's `ida.instances` mapping before
-          registering {option}`programs.ida-pro.hcli.instanceName`. Useful for
-          dropping instances added manually with {command}`hcli ida add`.
-        '';
-      };
-
       configFile = lib.mkOption {
         type = lib.types.str;
         default =
@@ -127,8 +113,7 @@ in
           "${cfg.hcli.configFile}" \
           "${cfg.hcli.instanceName}" \
           "${idaDirectory}" \
-          "${lib.boolToString cfg.hcli.default}" \
-          ${lib.escapeShellArg (builtins.toJSON cfg.hcli.removeInstances)}
+          "${lib.boolToString cfg.hcli.default}"
       ''
     );
   };

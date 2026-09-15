@@ -96,7 +96,7 @@ Package-specific Home Manager modules are available as `homeModules.ida-pro`. `p
 }
 ```
 
-`programs.ida-pro.hcli.instanceName` (default `"nix"`) and `programs.ida-pro.hcli.default` control the registered instance; `programs.ida-pro.hcli.removeInstances` deletes stale entries such as a previous `hcli ida add` registration. `homeModules.all` imports the complete published Home Manager module set.
+`programs.ida-pro.hcli.instanceName` (default `"nix"`) and `programs.ida-pro.hcli.default` control the registered instance. `homeModules.all` imports the complete published Home Manager module set.
 
 ## Package documentation
 
