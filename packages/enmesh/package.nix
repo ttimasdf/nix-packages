@@ -43,7 +43,12 @@ in
 flutter344.buildFlutterApplication {
   inherit pname version src;
 
-  autoPubspecLock = src + "/pubspec.lock";
+  # `yq . pubspec.lock` output, checked in so that evaluating this package needs
+  # no import-from-derivation. An IFD has to be built while the package is being
+  # evaluated, so `autoPubspecLock` would require yq on every machine that
+  # evaluates the config -- including an offline installer ISO. Regenerate it on
+  # version bumps; see README.md.
+  pubspecLock = lib.importJSON ./pubspec.lock.json;
 
   customSourceBuilders = {
     rust_lib_enmesh =
