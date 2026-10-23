@@ -11,6 +11,7 @@ let
     kscreen = import ./kscreen;
     nvtop = import ./nvtop.nix;
     qt68 = import ./qt68.nix;
+    rustdesk-unattended-wayland = import ./rustdesk-unattended-wayland;
     unzip-nls = import ./unzip-nls.nix;
     wemeet = import ./wemeet;
     wps = import ./wps.nix;

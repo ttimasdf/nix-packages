@@ -44,6 +44,7 @@ pkgs.zip-nls
 | `kscreen` | Applies local KDE KScreen patches through the `kdePackages` scope. |
 | `nvtop` | Adds `pkgs.nvtopPackages.nvidia-intel`, built with both Intel and NVIDIA support. |
 | `qt68` | Exposes the pinned Qt 6.8 package set and Python 3.12 bindings as `qt68`, `qt68Packages`, `qt68python312`, `qt68pyside6`, and `qt68shiboken6`. |
+| `rustdesk-unattended-wayland` | Adds `pkgs.rustdesk-flutter-unattended-wayland`, the RustDesk 1.5.0 client built with the `drm`/`drm-wake` unattended capture backend and a bundled `libdrmtap`. See [`rustdesk-unattended-wayland/README.md`](rustdesk-unattended-wayland/README.md). |
 | `unzip-nls` | Adds `pkgs.unzip-nls` (Info-ZIP unzip with NLS) hardcoding CP936 for DOS and Windows charset detection of legacy Chinese archive filenames, and skipping re-decoding of UTF-8-flagged entries. |
 | `wemeet` | Adds a native symbol-driven vtable hook that replaces WeMeet's bundled Qt drop-shadow renderer with direct source drawing, avoiding an Xwayland secondary-output crash without fixed binary offsets. Also provides the experimental `wemeet-wayland-playback` launcher without the camera EGL shim. See [`wemeet/README.md`](wemeet/README.md). |
 | `wps` | Adds `pkgs.wpsoffice-cn-fcitx`, wrapping WPS executables with Fcitx input-method environment variables. |
